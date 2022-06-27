@@ -74,8 +74,10 @@ app.post('/createReceipt', (req,res) => {
        res.send('Check Log and Code');       
       }
       const close = fp.CloseReceipt()
-      console.log(close) 
-      res.json(close)
+      const dateTime = fp.ReadDateTime()
+      console.log(close, dateTime) 
+      var response = {close,dateTime}
+      res.json(response)
      }    
     res.send("Done")
   
