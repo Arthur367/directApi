@@ -86,6 +86,47 @@ app.post('/createReceipt', (req,res) => {
   res.send('Check Log and Code')  
 } 
 })
+app.post('/createInvoice', (req,res) => {
+  payload = req.body  
+    items = payload.items_list
+       try {
+  fp.ServerSetSettings(req.headers.original);
+  fp.ServerSetDeviceTcpSettings(req.headers.hostname, req.headers.port, req.headers.password);
+  var device = fp.ServerFindDevice(); 
+    if(device) {
+        fp.ServerSetDeviceSerialSettings(device.serialPort, device.baudRate, false); //If FD is connected on serial port or USB
+        fp.PrintDiagnostics(); 
+    }
+    else {
+        console.log("Device not found");
+    }
+    const status = fp.ReadStatus()
+    if(status){
+      try {        
+        fp.OpenInvoiceWithFreeCustomerData("", payload.customer_pin,"","","","","","")
+        for(const val of items) {
+          let hscode = val.hscode ? val.hscode : " "  
+        
+        fp.SellPLUfromExtDB(val.stockitemname, Tremol.Enums.OptionVATClass.VAT_Class_A , val.rate,  " ",hscode," ",16, val.qty,0);
+        console.log(val.stockitemname, Tremol.Enums.OptionVATClass.VAT_Class_A , val.rate,  " ",hscode," ",16, val.qty,0);
+        
+    }      
+        
+      } catch (error) {
+        console.log(error)
+       res.send('Check Log and Code');       
+      }
+      const close = fp.CloseReceipt()
+      console.log(close) 
+      res.json(close)
+     }    
+    res.send("Done")
+  
+} catch (error) {
+  console.log(error);
+  res.send('Check Log and Code')  
+} 
+})
 
 app.post('/createCreditNote', (req,res) => {
   payload = req.body  
@@ -128,6 +169,7 @@ app.post('/createCreditNote', (req,res) => {
   res.send('Check Log and Code')  
 } 
 })
+
 
 app.post('/createDebitNote', (req,res) => {
   payload = req.body  
