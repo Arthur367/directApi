@@ -7,16 +7,23 @@ const app = express();
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
-var Tremol = require("./nodejs_tremol_loader").load(["./directapi/fp_core.js", "./directapi/fp.js"]);
+var Tremol = require("./nodejs_tremol_loader").load(["./directapi/fp_core.js", "./fp.js"]);
 var fp = new Tremol.FP();
 
+//196.207.19.130 , 196.207.19.131 196.207.27.42
 
 
 
 app.get('/', (req,res) => {
-try {
+  var status = fp.ReadStatus(); 
+  let n = false; 
+  while (n = true) {    
+    if(status){
+      n = true;
+    }
+     
   fp.ServerSetSettings("http://localhost:4444/");
-  fp.ServerSetDeviceTcpSettings("196.207.27.42", 8000, "Password");
+  fp.ServerSetDeviceTcpSettings("196.207.19.131", 8000, "Password");
   var device = fp.ServerFindDevice(); 
     if(device) {
         fp.ServerSetDeviceSerialSettings(device.serialPort, device.baudRate, false); //If FD is connected on serial port or USB
@@ -26,21 +33,16 @@ try {
         console.log("Device not found");
     }
     var status = fp.ReadStatus()
-    if(status){
-      res.send("Status Ok")
-    }
-    else {
-      console.log('error');
+   
+    if(!status){
+       console.log('error');
   res.send('Check Log and Code')
-
     }
+    
     res.send("Done")
   
-} catch (error) {
-  console.log(error);
-  res.send('Check Log and Code')
-  
-}
+} 
+
 })
 
 app.post('/createReceipt', (req,res) => {

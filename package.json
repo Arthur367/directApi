@@ -10,6 +10,7 @@
   "author": "Arthur",
   "license": "ISC",
   "dependencies": {
+    "@types/license-key-gen": "^0.1.0",
     "body-parser": "^1.20.0",
     "cors": "^2.8.5",
     "helmet": "^5.1.0",
