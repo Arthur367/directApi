@@ -5,3 +5,15 @@ body {
   max-width: 38rem;
   padding: 2rem;
 }
+#nameError {
+  display: none;
+  font-size: 0.8em;
+}
+
+#nameError.visible {
+  display: block;
+}
+
+input.invalid {
+  border-color: red;
+}
