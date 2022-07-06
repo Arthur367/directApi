@@ -14,16 +14,11 @@ var fp = new Tremol.FP();
 
 
 
-app.get('/', (req,res) => {
-  var status = fp.ReadStatus(); 
-  let n = false; 
-  while (n = true) {    
-    if(status){
-      n = true;
-    }
+app.get('/', (req,res) => {  
+  
      
   fp.ServerSetSettings("http://localhost:4444/");
-  fp.ServerSetDeviceTcpSettings("196.207.19.131", 8000, "Password");
+  fp.ServerSetDeviceTcpSettings("196.207.19.130", 8000, "Password");
   var device = fp.ServerFindDevice(); 
     if(device) {
         fp.ServerSetDeviceSerialSettings(device.serialPort, device.baudRate, false); //If FD is connected on serial port or USB
@@ -32,7 +27,15 @@ app.get('/', (req,res) => {
     else {
         console.log("Device not found");
     }
+    
     var status = fp.ReadStatus()
+    while (true) {
+      if(status){
+        res.send("Ok")
+        break;
+      }      
+    }
+    
    
     if(!status){
        console.log('error');
@@ -41,7 +44,7 @@ app.get('/', (req,res) => {
     
     res.send("Done")
   
-} 
+
 
 })
 
@@ -60,7 +63,9 @@ app.post('/createReceipt', (req,res) => {
         console.log("Device not found");
     }
     const status = fp.ReadStatus()
-    if(status){
+    while (true) {
+      if(status){
+        if(status){
       try {
         fp.OpenReceipt(1,"0000",Tremol.Enums.OptionFiscalReceiptPrintType); 
         for(const val of items) {
@@ -81,6 +86,11 @@ app.post('/createReceipt', (req,res) => {
       var response = {close,dateTime}
       res.json(response)
      }    
+        
+        break;
+      }      
+    }
+    
     res.send("Done")
   
 } catch (error) {
@@ -103,8 +113,10 @@ app.post('/createInvoice', (req,res) => {
         console.log("Device not found");
     }
     const status = fp.ReadStatus()
-    if(status){
-      try {        
+    while (true) {
+      if(status){
+        
+        try {        
         fp.OpenInvoiceWithFreeCustomerData("", payload.customer_pin,"","","","","","")
         for(const val of items) {
           let hscode = val.hscode ? val.hscode : " "  
@@ -119,9 +131,14 @@ app.post('/createInvoice', (req,res) => {
        res.send('Check Log and Code');       
       }
       const close = fp.CloseReceipt()
-      console.log(close) 
-      res.json(close)
-     }    
+      const dateTime = fp.ReadDateTime()
+      console.log(close, dateTime) 
+      var response = {close,dateTime}
+      res.json(response)
+        break;
+      }      
+    }
+    
     res.send("Done")
   
 } catch (error) {
@@ -145,8 +162,9 @@ app.post('/createCreditNote', (req,res) => {
         console.log("Device not found");
     }
     const status = fp.ReadStatus()
-    if(status){
-      try {        
+    while (true) {
+      if(status){
+        try {        
         fp.OpenCreditNoteWithFreeCustomerData("", payload.customer_pin,"","","","",payload.rel_doc_number,"")
         for(const val of items) {
           let hscode = val.hscode ? val.hscode : " "  
@@ -161,9 +179,14 @@ app.post('/createCreditNote', (req,res) => {
        res.send('Check Log and Code');       
       }
       const close = fp.CloseReceipt()
-      console.log(close) 
-      res.json(close)
-     }    
+       const dateTime = fp.ReadDateTime()
+      console.log(close, dateTime) 
+      var response = {close,dateTime}
+      res.json(response)
+        break;
+      }      
+    }
+    
     res.send("Done")
   
 } catch (error) {
@@ -188,8 +211,9 @@ app.post('/createDebitNote', (req,res) => {
         console.log("Device not found");
     }
     const status = fp.ReadStatus()
-    if(status){
-      try {        
+    while (true) {
+      if(status){
+        try {        
         fp.OpenDebitNoteWithFreeCustomerData("", payload.customer_pin,"","","","",payload.rel_doc_number,"")
         for(const val of items) {
           let hscode = val.hscode ? val.hscode : " "  
@@ -204,9 +228,16 @@ app.post('/createDebitNote', (req,res) => {
        res.send('Check Log and Code');       
       }
       const close = fp.CloseReceipt()
-      console.log(close) 
-      res.json(close)
-     }    
+      const dateTime = fp.ReadDateTime()
+      console.log(close, dateTime) 
+      var response = {close,dateTime}
+      res.json(response)
+        
+        break;
+      }      
+    }
+    
+    
     res.send("Done")
   
 } catch (error) {
