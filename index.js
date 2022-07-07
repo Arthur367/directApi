@@ -14,9 +14,9 @@ var fp = new Tremol.FP();
 
 
 
-app.get('/', (req,res) => {  
-  
-     
+app.get('/', (req,res) => {    
+ 
+        while (true) {
   fp.ServerSetSettings("http://localhost:4444/");
   fp.ServerSetDeviceTcpSettings("196.207.19.130", 8000, "Password");
   var device = fp.ServerFindDevice(); 
@@ -27,23 +27,25 @@ app.get('/', (req,res) => {
     else {
         console.log("Device not found");
     }
-    
-    var status = fp.ReadStatus()
-    while (true) {
+    try{
+var status = fp.ReadStatus()
+    console.log(status)
       if(status){
         res.send("Ok")
         break;
       }      
-    }
-    
-   
+       
     if(!status){
        console.log('error');
-  res.send('Check Log and Code')
+       res.send('Check Log and Code')
     }
     
     res.send("Done")
-  
+    }catch(e){
+      console.log(e)
+    }
+    
+  }
 
 
 })
@@ -51,7 +53,7 @@ app.get('/', (req,res) => {
 app.post('/createReceipt', (req,res) => {
   payload = req.body  
     items = payload.items_list
-       try {
+  while(true){       
   fp.ServerSetSettings(req.headers.original);
   fp.ServerSetDeviceTcpSettings(req.headers.hostname, req.headers.port, req.headers.password);
   var device = fp.ServerFindDevice(); 
@@ -62,46 +64,34 @@ app.post('/createReceipt', (req,res) => {
     else {
         console.log("Device not found");
     }
-    const status = fp.ReadStatus()
-    while (true) {
-      if(status){
-        if(status){
-      try {
+    try{
+    const status = fp.ReadStatus()   
+      if(status){       
         fp.OpenReceipt(1,"0000",Tremol.Enums.OptionFiscalReceiptPrintType); 
         for(const val of items) {
           let hscode = val.hscode ? val.hscode : " "  
         
         fp.SellPLUfromExtDB(val.stockitemname, Tremol.Enums.OptionVATClass.VAT_Class_A , val.rate,  " ",hscode," ",16, val.qty,0);
-        console.log(val.stockitemname, Tremol.Enums.OptionVATClass.VAT_Class_A , val.rate,  " ",hscode," ",16, val.qty,0);
-        
-    }      
-        
-      } catch (error) {
-        console.log(error)
-       res.send('Check Log and Code');       
-      }
-      const close = fp.CloseReceipt()
+        console.log(val.stockitemname, Tremol.Enums.OptionVATClass.VAT_Class_A , val.rate,  " ",hscode," ",16, val.qty,0);        
+    }  const close = fp.CloseReceipt()
       const dateTime = fp.ReadDateTime()
       console.log(close, dateTime) 
       var response = {close,dateTime}
-      res.json(response)
-     }    
-        
-        break;
-      }      
-    }
-    
-    res.send("Done")
-  
+      res.json(response) 
+      break;      
+      } 
 } catch (error) {
   console.log(error);
-  res.send('Check Log and Code')  
+   
 } 
+}
 })
+
+
 app.post('/createInvoice', (req,res) => {
   payload = req.body  
     items = payload.items_list
-       try {
+    while (true) {      
   fp.ServerSetSettings(req.headers.original);
   fp.ServerSetDeviceTcpSettings(req.headers.hostname, req.headers.port, req.headers.password);
   var device = fp.ServerFindDevice(); 
@@ -111,25 +101,17 @@ app.post('/createInvoice', (req,res) => {
     }
     else {
         console.log("Device not found");
-    }
-    const status = fp.ReadStatus()
-    while (true) {
-      if(status){
-        
-        try {        
+    } 
+    try{
+      const status = fp.ReadStatus()
+      if(status){               
         fp.OpenInvoiceWithFreeCustomerData("", payload.customer_pin,"","","","","","")
         for(const val of items) {
           let hscode = val.hscode ? val.hscode : " "  
         
         fp.SellPLUfromExtDB(val.stockitemname, Tremol.Enums.OptionVATClass.VAT_Class_A , val.rate,  " ",hscode," ",16, val.qty,0);
-        console.log(val.stockitemname, Tremol.Enums.OptionVATClass.VAT_Class_A , val.rate,  " ",hscode," ",16, val.qty,0);
-        
+        console.log(val.stockitemname, Tremol.Enums.OptionVATClass.VAT_Class_A , val.rate,  " ",hscode," ",16, val.qty,0);        
     }      
-        
-      } catch (error) {
-        console.log(error)
-       res.send('Check Log and Code');       
-      }
       const close = fp.CloseReceipt()
       const dateTime = fp.ReadDateTime()
       console.log(close, dateTime) 
@@ -137,20 +119,17 @@ app.post('/createInvoice', (req,res) => {
       res.json(response)
         break;
       }      
-    }
-    
-    res.send("Done")
-  
-} catch (error) {
+    }  
+    catch (error) {
   console.log(error);
-  res.send('Check Log and Code')  
+   
 } 
-})
+}})
 
 app.post('/createCreditNote', (req,res) => {
   payload = req.body  
     items = payload.items_list
-       try {
+    while (true) {      
   fp.ServerSetSettings(req.headers.original);
   fp.ServerSetDeviceTcpSettings(req.headers.hostname, req.headers.port, req.headers.password);
   var device = fp.ServerFindDevice(); 
@@ -161,45 +140,34 @@ app.post('/createCreditNote', (req,res) => {
     else {
         console.log("Device not found");
     }
-    const status = fp.ReadStatus()
-    while (true) {
-      if(status){
-        try {        
+    try{
+    const status = fp.ReadStatus()    
+      if(status){               
         fp.OpenCreditNoteWithFreeCustomerData("", payload.customer_pin,"","","","",payload.rel_doc_number,"")
         for(const val of items) {
-          let hscode = val.hscode ? val.hscode : " "  
-        
+          let hscode = val.hscode ? val.hscode : " "         
         fp.SellPLUfromExtDB(val.stockitemname, Tremol.Enums.OptionVATClass.VAT_Class_A , val.rate,  " ",hscode," ",16, val.qty,0);
         console.log(val.stockitemname, Tremol.Enums.OptionVATClass.VAT_Class_A , val.rate,  " ",hscode," ",16, val.qty,0);
-        
-    }      
-        
-      } catch (error) {
-        console.log(error)
-       res.send('Check Log and Code');       
-      }
-      const close = fp.CloseReceipt()
+        const close = fp.CloseReceipt()
        const dateTime = fp.ReadDateTime()
       console.log(close, dateTime) 
       var response = {close,dateTime}
       res.json(response)
-        break;
-      }      
+        break;        
+    }        
+   }} catch (error) {
+        console.log(error)
+            
+      }
     }
-    
-    res.send("Done")
-  
-} catch (error) {
-  console.log(error);
-  res.send('Check Log and Code')  
-} 
 })
 
 
 app.post('/createDebitNote', (req,res) => {
   payload = req.body  
     items = payload.items_list
-       try {
+    while(true){
+      
   fp.ServerSetSettings(req.headers.original);
   fp.ServerSetDeviceTcpSettings(req.headers.hostname, req.headers.port, req.headers.password);
   var device = fp.ServerFindDevice(); 
@@ -210,40 +178,28 @@ app.post('/createDebitNote', (req,res) => {
     else {
         console.log("Device not found");
     }
-    const status = fp.ReadStatus()
-    while (true) {
+    try{
+    const status = fp.ReadStatus()    
       if(status){
-        try {        
+               
         fp.OpenDebitNoteWithFreeCustomerData("", payload.customer_pin,"","","","",payload.rel_doc_number,"")
         for(const val of items) {
           let hscode = val.hscode ? val.hscode : " "  
         
         fp.SellPLUfromExtDB(val.stockitemname, Tremol.Enums.OptionVATClass.VAT_Class_A , val.rate,  " ",hscode," ",16, val.qty,0);
         console.log(val.stockitemname, Tremol.Enums.OptionVATClass.VAT_Class_A , val.rate,  " ",hscode," ",16, val.qty,0);
-        
-    }      
-        
-      } catch (error) {
-        console.log(error)
-       res.send('Check Log and Code');       
-      }
-      const close = fp.CloseReceipt()
+        }
+         const close = fp.CloseReceipt()
       const dateTime = fp.ReadDateTime()
       console.log(close, dateTime) 
       var response = {close,dateTime}
-      res.json(response)
-        
-        break;
-      }      
-    }
-    
-    
-    res.send("Done")
-  
-} catch (error) {
-  console.log(error);
-  res.send('Check Log and Code')  
-} 
+      res.json(response)        
+        break;       
+       }} catch (error) {
+        console.log(error)             
+      }
+     
+      }
 })
 
 
